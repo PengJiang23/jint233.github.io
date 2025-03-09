@@ -3,15 +3,17 @@ pipeline {
 
     environment {
         DOCKER_IMAGE_NAME = "jint233_image"
-        DOCKER_COMPOSE_FILE = "path/to/docker-compose.yml"  // Docker Compose 文件的路径
-        DOCKERFILE_PATH = "docker-compose.yml"  // Dockerfile 文件的路径
+        DOCKER_COMPOSE_FILE = "docker-compose.yml"  // Docker Compose 文件的路径
+        DOCKERFILE_PATH = "Dockerfile"  // Dockerfile 文件的路径
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // 拉取 Git 仓库代码
-                checkout scm
+                script {
+                    // 使用浅克隆（只拉取最近的提交）
+                    sh 'git clone --depth=1 https://github.com/PengJiang23/jint233.github.io.git'
+                }
             }
         }
 
