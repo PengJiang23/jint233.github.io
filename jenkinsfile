@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE_NAME = "jint233_image"
+        DOCKER_COMPOSE_FILE = "path/to/docker-compose.yml"  // Docker Compose 文件的路径
+        DOCKERFILE_PATH = "docker-compose.yml"  // Dockerfile 文件的路径
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // 拉取 Git 仓库代码
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // 使用 Dockerfile 构建镜像
+                    sh "docker build -t $DOCKER_IMAGE_NAME -f $DOCKERFILE_PATH ."
+                }
+            }
+        }
+
+        stage('Run Docker Compose') {
+            steps {
+                script {
+                    // 使用 Docker Compose 启动服务
+                    sh "docker-compose -f $DOCKER_COMPOSE_FILE up -d"
+                }
+            }
+        }
+
+        stage('Clean Up') {
+            steps {
+                script {
+                    // 清理 Docker 镜像和容器
+                    sh "docker-compose -f $DOCKER_COMPOSE_FILE down"
+                    sh "docker rmi $DOCKER_IMAGE_NAME"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // 执行完构建后，无论成功还是失败都会清理资源
+            cleanWs()
+        }
+    }
+}
